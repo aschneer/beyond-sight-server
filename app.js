@@ -13,8 +13,9 @@ app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x
 // Routes:
 app.get('/', function(req,res) {
 
-	res.sendFile('./index.html',{root: __dirname});
-	
+//	res.sendFile('./static/index.html',{root: __dirname});
+	res.status(200).send('<span><h2>Latitude = ' + req.query.lat + '</h2></span>' + '<span><h2>Longitude = ' + req.query.lng + '</h2></span>');
+
 });
 
 // Run app:
