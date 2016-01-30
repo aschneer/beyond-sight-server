@@ -6,14 +6,14 @@ var app = express();
 
 app.set('port', (process.env.PORT || 5000));
 
-app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname));
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
 // Routes:
 app.get('/', function(req,res) {
 
-
+	res.sendFile('./index.html',{root: __dirname});
 	
 });
 
