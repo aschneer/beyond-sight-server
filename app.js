@@ -55,17 +55,43 @@ app.use(function(req, res, next) {
 
 // ROUTES:
 
+// Route to display introductory page.
+app.get("/",function(req,res){
+	res.set("Content-Type","text/html");
+	res.status(200);
+	res.send(
+		"<h2>Beyond Sight Server</h2>"
+		+ "<h4>Andrew Schneer</h4>"
+		+ "<h4>01/30/2016</h4>"
+		+ "<h2>Instructions:</h2>"
+		+ "<h5>Root server URL:</h5>"
+		+ "<p>http://beyond-sight-server.herokuapp.com/<p>"
+		+ "<h4>Routes:</h4>"
+		+ "<h5>/</h5>"
+		+ "<p>GET</p>"
+		+ "<p>Displays this page; introductory information.<p>"
+		+ "<h5>/newdestination</h5>"
+		+ "<p>POST<p>"
+		+ "<p>Use this to add a new destination lat/lng entry to the database.  "
+		+ "Send the data as a Javascript object in a string.  The entries should be "
+		+ "'lat', 'lng', and 'timestamp'.</p>"
+		+ "<h5></h5>"
+		+ "<p>GET</p>"
+		+ "<p></p>"
+	);
+});
+
 // Route to store new lat/lng values in database.
 app.post('/newdestination', function(req,res) {
-
-	// Retrieve URL query parameters.
+	// Retrieve body parameters.
 	var input = req.body;
+
+	console.log(input);
 
 	// Grab current time.
 	t = new Date();
 	t = new Date(t.getTime());
 	t = t.toJSON();
-
 	// Prepare new data for insertion
 	// into database (upsert).
 	var newDoc = {id: input.timestamp, lat: input.lat, lng: input.lng, created_at: t};
@@ -77,7 +103,7 @@ app.post('/newdestination', function(req,res) {
 				if(err === null) {
 					// Read document that was just inserted
 					// and return it to the client.
-					coll.findOne({id: input.timestamp}).toArray(function(err,doc){
+					coll.findOne({id: input.timestamp},function(err,doc){
 						if(err === null) {
 							res.set("Content-Type","application/json");
 							res.status(200);
@@ -112,6 +138,25 @@ app.post('/newdestination', function(req,res) {
 	});
 });
 
+// Route to get the most recent destination
+// added to the database.  This will be the
+// one that the device will navigate the
+// user to.  It is very important for there
+// to be a unique timestamp on all database
+// entries so the latest entry can always be
+// determined absolutely.
+app.get("/getdestination",function(req,res){
+
+
+
+
+	// WRITE THIS ROUTE.
+
+
+
+
+});
+
 // Route to print entire database to HTML page.
 app.get("/dbcontents",function(req,res){
 	db.collection("destinations", function(err,coll) {
@@ -119,7 +164,7 @@ app.get("/dbcontents",function(req,res){
 			coll.find().toArray(function(err,docs) {
 				if(err === null) {
 					res.set("Content-Type","application/json");
-					res.status(500);
+					res.status(200);
 					res.json(docs);
 				}
 				else {
@@ -148,7 +193,8 @@ app.get("/dbclear",function(req,res) {
 					if(err === null) {
 						res.set("Content-Type","text/html");
 						res.status(200);
-						res.send("Success: Database cleared."); {
+						res.send("Success: Database cleared.");
+					}
 					else {
 						res.set("Content-Type","text/html");
 						res.status(500);
