@@ -2,7 +2,9 @@
 var express = require('express');
 // For parsing JSON.
 var bodyParser = require('body-parser');
-// ?
+// For validating client POST content.
+var validator = require("validator");
+// For parsing multi-part form data (unused right now).
 var multer = require('multer'); // v1.0.5
 var upload = multer(); // for parsing multipart/form-data
 // Create MongoDB objects.
@@ -77,7 +79,7 @@ app.get("/",function(req,res){
 		+ "'lat', 'lng', and 'timestamp'.</p>"
 		+ "<h5></h5>"
 		+ "<p>GET</p>"
-		+ "<p></p>"
+		+ "<p>*********FINISH WRITING THIS PAGE*************</p>"
 	);
 });
 
@@ -85,48 +87,104 @@ app.get("/",function(req,res){
 app.post('/newdestination', function(req,res) {
 	// Retrieve body parameters.
 	var input = req.body;
+	// Validate input, and convert to proper data types.
+	if(validator.isDate(input.timestamp) && validator.isFloat(input.lat) && validator.isFloat(input.lng)) {
+		input.timestamp = validator.toDate(input.timestamp);
+		input.lat = validator.toFloat(input.lat);
+		input.lng = validator.toFloat(input.lng);
+		console.log(input);
+/*
+		// Grab current time.
+		t = new Date();
+		t = new Date(t.getTime());
+		t = t.toJSON();
+*/
+		// Prepare new data for insertion
+		// into database (upsert).
+		var newDoc = {timestamp: input.timestamp, lat: input.lat, lng: input.lng};
+		// Open the "locations" collection.
+		db.collection("destinations", function(err,coll) {
+			if(err === null) {
+				// Perform upsert on data provided by user.
+				coll.updateOne({timestamp: input.timestamp}, newDoc, {upsert: true, w: 1}, function(err,result){
+					if(err === null) {
+						// Read document that was just inserted
+						// and return it to the client.
+						coll.findOne({timestamp: input.timestamp}, function(err,doc){
+							if(err === null) {
+								res.set("Content-Type","application/json");
+								res.status(200);
+								res.json({
+									html: ('<span><h2>Latitude = ' + doc.lat + '</h2></span>' + '<span><h2>Longitude = ' + doc.lng + '</h2></span>'),
+									success: true,
+									timestamp: doc.timestamp,
+									lat: doc.lat,
+									lng: doc.lng,
+								});
+							}
+							else {
+								res.set("Content-Type","text/html");
+								res.status(500);
+								res.send("Database server error: Document not found.");
+							}
+						});
+					}
+					else {
+						res.set("Content-Type","text/html");
+						res.status(500);
+						res.send("Database server error: Failed to update document.");
+					}
+				});
+			}
+			else {
+				res.set("Content-Type","text/html");
+				res.status(500);
+				res.send("Database server error: Collection not found.");
+			}
+		});
+	}
+	else {
+		console.log("\n\nInvalid POST input!\n\n");
+		res.set("Content-Type","text/html");
+		res.status(400);
+		res.send("Invalid input to POST request.");
+	}
+});
 
-	console.log(input);
-
-	// Grab current time.
-	t = new Date();
-	t = new Date(t.getTime());
-	t = t.toJSON();
-	// Prepare new data for insertion
-	// into database (upsert).
-	var newDoc = {id: input.timestamp, lat: input.lat, lng: input.lng, created_at: t};
-	// Open the "locations" collection.
+// Route to get the most recent destination
+// added to the database.  This will be the
+// one that the device will navigate the
+// user to.  It is very important for there
+// to be a unique timestamp on all database
+// entries so the latest entry can always be
+// determined absolutely.
+// The response format will be JSON.
+app.get("/getdestination",function(req,res){
 	db.collection("destinations", function(err,coll) {
 		if(err === null) {
-			// Perform upsert on data provided by user.
-			coll.updateOne({id: input.timestamp}, newDoc, {upsert: true, w: 1}, function(err,result){
+			// Get latest document, determined by
+			// timestamp sent from client, not
+			// necessarily the time when it was
+			// added to the database.
+			coll.find().sort({timestamp: -1}).toArray(function(err,docs) {
 				if(err === null) {
-					// Read document that was just inserted
-					// and return it to the client.
-					coll.findOne({id: input.timestamp},function(err,doc){
-						if(err === null) {
-							res.set("Content-Type","application/json");
-							res.status(200);
-							res.json({
-								html: ('<span><h2>Latitude = ' + doc.lat + '</h2></span>' + '<span><h2>Longitude = ' + doc.lng + '</h2></span>'),
-								success: true,
-								lat: doc.lat,
-								lng: doc.lng,
-								id: doc.id,
-								created_at: doc.created_at
-							});
-						}
-						else {
-							res.set("Content-Type","text/html");
-							res.status(500);
-							res.send("Database server error: Document not found.");
-						}
-					});
+					// Check if database is empty.
+					if(docs.length > 0) {
+						res.set("Content-Type","application/json");
+						res.status(200);
+						res.json({lat: docs[0].lat, lng: docs[0].lng});
+					}
+					else {
+						// Send output string response "Empty".
+						res.set("Content-Type","text/html");
+						res.status(200);
+						res.send("The database is empty.");
+					}
 				}
 				else {
 					res.set("Content-Type","text/html");
 					res.status(500);
-					res.send("Database server error: Failed to update document.");
+					res.send("Database server error: Failed to query collection.");
 				}
 			});
 		}
@@ -138,34 +196,41 @@ app.post('/newdestination', function(req,res) {
 	});
 });
 
-// Route to get the most recent destination
-// added to the database.  This will be the
-// one that the device will navigate the
-// user to.  It is very important for there
-// to be a unique timestamp on all database
-// entries so the latest entry can always be
-// determined absolutely.
-app.get("/getdestination",function(req,res){
-
-
-
-
-	// WRITE THIS ROUTE.
-
-
-
-
-});
-
 // Route to print entire database to HTML page.
 app.get("/dbcontents",function(req,res){
 	db.collection("destinations", function(err,coll) {
 		if(err === null) {
-			coll.find().toArray(function(err,docs) {
+			// Get all documents in the database collection,
+			// sorted in descending order by timestamp.
+			coll.find().sort({timestamp: -1}).toArray(function(err,docs) {
 				if(err === null) {
-					res.set("Content-Type","application/json");
-					res.status(200);
-					res.json(docs);
+					// Check if database is empty.
+					if(docs.length > 0) {
+						// Prepare output string.
+						var output = "<style>p#latest{font-weight: bold}</style>";
+						output += "<h3>Database Contents:</h3>";
+						output += "<div><ul>";
+						for (var i = 0; i < docs.length; i++) {
+							// Make the most recent entry BOLD.
+							if(i == 0) {
+								output += "<li><p id='latest'>" + JSON.stringify(docs[i]) + "</p></li>";
+							}
+							else {
+								output += "<li><p>" + JSON.stringify(docs[i]) + "</p></li>";
+							}
+						};
+						output += "</ul></div>";
+						// Send output string response.
+						res.set("Content-Type","text/html");
+						res.status(200);
+						res.send(output);
+					}
+					else {
+						// Send output string response "Empty".
+						res.set("Content-Type","text/html");
+						res.status(200);
+						res.send("The database is empty.");
+					}
 				}
 				else {
 					res.set("Content-Type","text/html");
