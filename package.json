@@ -1,0 +1,27 @@
+{
+  "name": "beyond-sight-server",
+  "version": "1.0.0",
+  "description": "Geolocation app for Beyond Sight.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aschneer/beyond-sight-server.git"
+  },
+  "keywords": [
+    "node",
+    "express",
+    "js"
+  ],
+  "author": "Andrew Schneer",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aschneer/beyond-sight-server/issues"
+  },
+  "homepage": "https://github.com/aschneer/beyond-sight-server#readme",
+  "dependencies": {
+    "express": "^4.13.4"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "beyond-sight-server",
+  "description": "Geolocation app for Beyond Sight.",
+  "repository": "https://github.com/aschneer/beyond-sight-server.git",
+  "logo": "http://node-js-sample.herokuapp.com/node.svg",
+  "keywords": ["node", "express", "static"],
+  "image": "heroku/nodejs"
+}
