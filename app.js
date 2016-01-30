@@ -58,29 +58,26 @@ app.use(function(req, res, next) {
 // ROUTES:
 
 // Route to display introductory page.
-app.get("/",function(req,res){
+app.get("/",function(req,res) {
+	// Set options for sending file.
+	var options = {
+		root: __dirname + '/public/',
+		headers: {
+				'x-timestamp': Date.now(),
+				'x-sent': true
+		}
+	};
 	res.set("Content-Type","text/html");
 	res.status(200);
-	res.send(
-		"<h2>Beyond Sight Server</h2>"
-		+ "<h4>Andrew Schneer</h4>"
-		+ "<h4>01/30/2016</h4>"
-		+ "<h2>Instructions:</h2>"
-		+ "<h5>Root server URL:</h5>"
-		+ "<p>http://beyond-sight-server.herokuapp.com/<p>"
-		+ "<h4>Routes:</h4>"
-		+ "<h5>/</h5>"
-		+ "<p>GET</p>"
-		+ "<p>Displays this page; introductory information.<p>"
-		+ "<h5>/newdestination</h5>"
-		+ "<p>POST<p>"
-		+ "<p>Use this to add a new destination lat/lng entry to the database.  "
-		+ "Send the data as a Javascript object in a string.  The entries should be "
-		+ "'lat', 'lng', and 'timestamp'.</p>"
-		+ "<h5></h5>"
-		+ "<p>GET</p>"
-		+ "<p>*********FINISH WRITING THIS PAGE*************</p>"
-	);
+	res.sendFile("intro.html", options, function (err) {
+    if (err) {
+      console.log(err);
+      res.status(err.status).end();
+    }
+    else {
+      console.log("Successfully displayed intro page.");
+    }
+  });
 });
 
 // Route to store new lat/lng values in database.
