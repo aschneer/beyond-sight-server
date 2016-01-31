@@ -57,8 +57,9 @@ app.use(function(req, res, next) {
 
 // ROUTES:
 
-// Route to display introductory page.
-app.get("/",function(req,res) {
+// Route to display map for
+// choosing destination.
+app.get("/", function(req,res) {
 	// Set options for sending file.
 	var options = {
 		root: __dirname + '/public/',
@@ -69,15 +70,38 @@ app.get("/",function(req,res) {
 	};
 	res.set("Content-Type","text/html");
 	res.status(200);
-	res.sendFile("intro.html", options, function (err) {
-    if (err) {
-      console.log(err);
-      res.status(err.status).end();
-    }
-    else {
-      console.log("Successfully displayed intro page.");
-    }
-  });
+	res.sendFile("map.html", options, function (err) {
+		if (err) {
+			console.log(err);
+			res.status(err.status).end();
+		}
+		else {
+			console.log("Successfully displayed map page.");
+		}
+	});
+});
+
+// Route to display informational page.
+app.get("/info", function(req,res) {
+	// Set options for sending file.
+	var options = {
+		root: __dirname + '/public/',
+		headers: {
+				'x-timestamp': Date.now(),
+				'x-sent': true
+		}
+	};
+	res.set("Content-Type","text/html");
+	res.status(200);
+	res.sendFile("info.html", options, function (err) {
+		if (err) {
+			console.log(err);
+			res.status(err.status).end();
+		}
+		else {
+			console.log("Successfully displayed info page.");
+		}
+	});
 });
 
 // Route to store new lat/lng values in database.
@@ -156,7 +180,7 @@ app.post('/newdestination', function(req,res) {
 // entries so the latest entry can always be
 // determined absolutely.
 // The response format will be JSON.
-app.get("/getdestination",function(req,res){
+app.get("/getdestination", function(req,res){
 	db.collection("destinations", function(err,coll) {
 		if(err === null) {
 			// Get latest document, determined by
@@ -194,7 +218,7 @@ app.get("/getdestination",function(req,res){
 });
 
 // Route to print entire database to HTML page.
-app.get("/dbcontents",function(req,res){
+app.get("/dbcontents", function(req,res){
 	db.collection("destinations", function(err,coll) {
 		if(err === null) {
 			// Get all documents in the database collection,
@@ -245,7 +269,7 @@ app.get("/dbcontents",function(req,res){
 });
 
 // Route to clear database.
-app.get("/dbclear",function(req,res) {
+app.get("/dbclear", function(req,res) {
 	//Grab route query parameters.
 	var input = req.query;
 	if(input.pswd === "beyondsight") {
