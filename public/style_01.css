@@ -4,3 +4,53 @@ html, body, div#map-canvas {
 	margin: 0px;
 	padding: 0px;
 }
+
+.controls
+{
+	margin-top: 16px;
+	border: 1px solid transparent;
+	border-radius: 2px 0 0 2px;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	height: 32px;
+	outline: none;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+input#searchBox, div#confirmBox
+{
+	background-color: #fff;
+	font-family: Roboto;
+	font-size: 20px;
+	font-weight: 300;
+	margin-top: 40px;
+	margin-left: 12px;
+	padding: 0 11px 0 13px;
+	text-overflow: ellipsis;
+	width: 30%;
+	min-width: 300px;
+	height: 50px;
+	border-radius: 10px;
+}
+
+div#confirmBox
+{
+	/* Red */
+	background-color: #ff6666;
+	vertical-align: middle;
+	margin-bottom: 40px;
+}
+
+p#confirmBoxText
+{
+	font-weight: bold;
+	width: 100%;
+	text-align: center;
+	margin: 0px;
+	padding: 0px;
+	padding-top: 14px;
+}
+
+
+
+
